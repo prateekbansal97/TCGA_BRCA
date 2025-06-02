@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from utils.preprocessing import load_rnaseq, load_clinical_phenotype, generate_feature_and_labels
 from models.mlp import MLP
+from utils.metrics import evaluate
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
@@ -38,7 +39,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 
 # Training loop
-for epoch in tqdm(range(N_EPOCHS)):
+for epoch in tqdm(range(N_EPOCHS), leave=False):
     model.train()
     for xb, yb in train_loader:
         pred = model(xb)
@@ -47,3 +48,11 @@ for epoch in tqdm(range(N_EPOCHS)):
         loss.backward()
         optimizer.step()
     print(f"Epoch {epoch+1}, Loss: {loss.item():.4f}")
+
+
+model.eval()
+with torch.no_grad():
+    pred = model(tensor_x_test).numpy().flatten()
+    scores = evaluate(y_test, pred)
+    print("Test Accuracy:", scores['accuracy'])
+    print("Test ROC-AUC:", scores['roc_auc'])
