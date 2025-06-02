@@ -1,4 +1,5 @@
 .DS_Store
+models/*.ipynb
 *.ipynb
 utils/*.ipynb
 data/*.tsv
